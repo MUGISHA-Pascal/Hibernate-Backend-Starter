@@ -14,5 +14,8 @@
         <property name="hibernate.show_sql">true</property>
         <mapping class="com.hibernate.hibernate.models.Student"/>
         <mapping class="com.hibernate.hibernate.models.Course"/>
+        <mapping class="com.hibernate.hibernate.models.Vehicle"/>
+        <mapping class="com.hibernate.hibernate.models.Car"/>
+        <mapping class="com.hibernate.hibernate.models.Bike"/>
     </session-factory>
 </hibernate-configuration>

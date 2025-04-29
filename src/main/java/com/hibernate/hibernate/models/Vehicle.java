@@ -8,8 +8,8 @@ import jakarta.persistence.*;
 public class Vehicle {
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int vehicleId;
-   private String manufacturer;
+private int vehicleId;
+private String manufacturer;
    public int getVehicleId(){
        return vehicleId;
    }
