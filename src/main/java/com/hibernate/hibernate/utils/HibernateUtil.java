@@ -2,26 +2,40 @@ package com.hibernate.hibernate.utils;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HibernateUtil {
+    private static final Logger logger = LoggerFactory.getLogger(HibernateUtil.class);
+    private static final SessionFactory sessionFactory;
 
-    private static final SessionFactory sessionFactory = buildSessionFactory();
-
-    private static SessionFactory buildSessionFactory() {
+    static {
         try {
-            // Create the SessionFactory from hibernate.cfg.xml
-            return new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
+            Configuration configuration = new Configuration();
+            configuration.configure("hibernate.cfg.xml");
+            
+            // Add entity classes
+            configuration.addAnnotatedClass(com.hibernate.hibernate.models.Product.class);
+            
+            sessionFactory = configuration.buildSessionFactory();
+            logger.info("Hibernate SessionFactory initialized successfully");
         } catch (Throwable ex) {
-            System.err.println("Initial SessionFactory creation failed." + ex);
+            logger.error("Initial SessionFactory creation failed: {}", ex.getMessage(), ex);
             throw new ExceptionInInitializerError(ex);
         }
     }
 
     public static SessionFactory getSessionFactory() {
+        if (sessionFactory == null) {
+            throw new IllegalStateException("SessionFactory is not initialized");
+        }
         return sessionFactory;
     }
 
     public static void shutdown() {
-        getSessionFactory().close();
+        if (sessionFactory != null && !sessionFactory.isClosed()) {
+            sessionFactory.close();
+            logger.info("Hibernate SessionFactory closed");
+        }
     }
 }
