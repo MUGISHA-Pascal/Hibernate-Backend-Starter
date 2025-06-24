@@ -4,6 +4,11 @@ FROM openjdk:17-jdk-slim
 # Set working directory
 WORKDIR /app
 
+# Install necessary packages
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy Maven wrapper and pom.xml
 COPY mvnw .
 COPY .mvn .mvn
@@ -12,17 +17,17 @@ COPY pom.xml .
 # Make mvnw executable
 RUN chmod +x mvnw
 
-# Download dependencies (this layer will be cached if pom.xml doesn't change)
-RUN ./mvnw dependency:go-offline -B
+# Download dependencies with timeout and retry
+RUN ./mvnw dependency:go-offline -B -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.http.retryHandler.retryInterval=1000
 
 # Copy source code
 COPY src ./src
 
 # Build the application
-RUN ./mvnw clean package -DskipTests
+RUN ./mvnw clean package -DskipTests -B
 
 # Create a new stage for runtime
-FROM openjdk:17-jre-slim
+FROM openjdk:17-slim
 
 # Set working directory
 WORKDIR /app
